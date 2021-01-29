@@ -2,7 +2,11 @@
 
 from flask import Flask, jsonify, request, g
 from flask_cors import CORS
+from flask_login import LoginManager
+
 from resources.dogs import dog
+from resources.users import users
+from resources.user_dogs import user_dogs
 import models
 
 DEBUG = True
@@ -12,6 +16,20 @@ PORT = 8000
 # This starts the website!
 app = Flask(__name__)
 
+#handle session secret for login_manager before instantiating login manager
+app.config.from_pyfile('config.py')
+
+#instantiate LoginManager and initialize in app from app = Flask(__name__)
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+#allow user to be available anywhere in app
+@login_manager.user_loader
+def load_user(user_id):
+    try:
+        return models.User.get_by_id(user_id)
+    except models.DoesNotExist:
+        return None
 
 @app.before_request
 def before_request():
@@ -28,6 +46,8 @@ def after_request(response):
 CORS(dog, origins=['http://localhost:3000'], supports_credentials=True)
 
 app.register_blueprint(dog, url_prefix='/api/v1/dogs')
+app.register_blueprint(users, url_prefix='/api/v1/users')
+app.register_blueprint(user_dogs, url_prefix='/api/v1/user_dogs')
 
 # The default URL ends in / ("my-website.com/").
 @app.route('/')

@@ -14,22 +14,23 @@ def get_all_dogs():
     ## find the dogs and change each one to a dictionary into a new array
     try:
         #query DB to get all dogs
-        all_dogs = models.Dog.select()
+        #all_dogs = models.Dog.select()
         #print(all_dogs)
         #parse the models into dictionaries
-        dogs_to_dict = [model_to_dict(dog) for dog in all_dogs]
+        #dogs_to_dict = [model_to_dict(dog) for dog in all_dogs]
+        dogs = [{'dog': model_to_dict(models.Dog.get_by_id(dog.dog)), 'human': model_to_dict(models.User.get_by_id(user_dog.user))} for user_dog in models.UserDog.select()]
         #print(dogs_to_dict)
-        return jsonify(data=dogs_to_dict, status={"code": 200, "message": "Success"})
+        return jsonify(data=dogs, status={"code": 200, "message": "Success"})
     except models.DoesNotExist:
         return jsonify(data={}, status={"code": 404, "message": "Error getting the resources"})
 
-@dog.route('/', methods=["POST"])
-def create_dogs():
+#@dog.route('/', methods=["POST"])
+#def create_dogs():
     ## see request payload anagolous to req.body in express
-    payload = request.get_json()
+    #payload = request.get_json()
     #print(type(payload), 'payload')
     #create a dog -> ** is spread operator for dictionaries
-    dog = models.Dog.create(**payload)
+    #dog = models.Dog.create(**payload)
     ## see the object
     #print(dog.__dict__)
     ## Look at all the methods
@@ -37,8 +38,8 @@ def create_dogs():
     # Change the model to a dict
     #print(model_to_dict(dog), 'model to dict')
     #parse dog so we can user jsonify
-    dog_dict = model_to_dict(dog)
-    return jsonify(data=dog_dict, status={"code": 201, "message": "Success"})
+    #dog_dict = model_to_dict(dog)
+    #return jsonify(data=dog_dict, status={"code": 201, "message": "Success"})
 
 @dog.route('/<dog_id>', methods=["GET"])
 def get_dog(dog_id):
